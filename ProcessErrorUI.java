@@ -4,16 +4,17 @@ package com.aspirephile.shared.ui;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.aspirephile.shared.debug.Logger;
 import com.aspirephile.shared.debug.NullPointerAsserter;
-import com.funtainment.R;
 
 import static android.view.View.OnClickListener;
 
@@ -21,10 +22,17 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
     private final Logger l = new Logger(ProcessErrorUI.class);
     private final NullPointerAsserter asserter = new NullPointerAsserter(l);
 
-    TextView error;
-    String errorText;
 
-    Button retry;
+    private LinearLayout mainContainer, errorContainer;
+    private View parentContentView;
+
+    private TextView error;
+    private String errorText;
+
+    private String retryText;
+    private Button retry;
+    private OnClickListener onClickListener;
+    private ProgressBar progressBar;
 
     private enum ProcessState {
         LOADING, ERROR_SET, RESOLVED
@@ -32,12 +40,6 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
 
     ProcessState state;
     boolean isAnimationEnabled;
-
-    private OnClickListener onClickListener;
-    private View processErrorUICOntainer;
-    private ProgressBar progressBar;
-
-    private View parentContentView;
 
     public ProcessErrorUI() {
         l.onConstructor();
@@ -47,27 +49,51 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         l.onCreate();
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         l.onCreateView();
-        View v = inflater.inflate(R.layout.fragment_process_error_ui, container, false);
-        bridgeXML(v);
+        View v = getDynamicallyCreatedContentView();
         initializeFields();
         return v;
     }
 
-    private void bridgeXML(View v) {
-        l.bridgeXML();
-        error = (TextView) v.findViewById(R.id.tv_process_error_ui);
-        retry = (Button) v.findViewById(R.id.b_process_error_ui_retry);
-        progressBar = (ProgressBar) v.findViewById(R.id.pb_process_error);
-        processErrorUICOntainer = v.findViewById(R.id.container_process_error_ui);
-        l.bridgeXML(asserter.assertPointer(error, retry, progressBar, processErrorUICOntainer));
+    private View getDynamicallyCreatedContentView() {
+        l.d("Dynamically generating Process error UI");
+        {
+            {
+                {
+                    error = new TextView(getActivity());
+                    error.setText(errorText);
+                    error.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);
+                }
+                {
+                    retry = new Button(getActivity());
+                    retry.setText(retryText);
+                }
+                {
+                    errorContainer = new LinearLayout(getActivity());
+                    errorContainer.setOrientation(LinearLayout.VERTICAL);
+                    errorContainer.setGravity(Gravity.CENTER);
+                    errorContainer.addView(error);
+                    errorContainer.addView(retry);
+                }
+            }
+            {
+                progressBar = new ProgressBar(getActivity());
+            }
+            {
+                mainContainer = new LinearLayout(getActivity());
+                mainContainer.setOrientation(LinearLayout.VERTICAL);
+                errorContainer.setGravity(Gravity.CENTER);
+                mainContainer.addView(errorContainer);
+                mainContainer.addView(progressBar);
+            }
+        }
+        l.bridgeXML(asserter.assertPointer(error, retry, progressBar, errorContainer));
+        return mainContainer;
     }
 
     private void initializeFields() {
@@ -86,7 +112,7 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
                 break;
             case LOADING:
                 showLoading();
-                processErrorUICOntainer.setVisibility(View.GONE);
+                errorContainer.setVisibility(View.GONE);
                 break;
             case RESOLVED:
                 resolveErrors();
@@ -113,12 +139,16 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
         internalSetError();
     }
 
+    public void setRetryText(String retryText) {
+        this.retryText = retryText;
+    }
+
     private void internalSetError() {
         l.d("Setting errors");
         state = ProcessState.ERROR_SET;
-        if (asserter.assertPointerQuietly(progressBar, processErrorUICOntainer)) {
+        if (asserter.assertPointerQuietly(progressBar, errorContainer)) {
             progressBar.setVisibility(View.GONE);
-            processErrorUICOntainer.setVisibility(View.VISIBLE);
+            errorContainer.setVisibility(View.VISIBLE);
         }
         if (parentContentView != null)
             parentContentView.setVisibility(View.INVISIBLE);
@@ -127,9 +157,9 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
     public void showLoading() {
         l.d("Showing loading");
         state = ProcessState.LOADING;
-        if (asserter.assertPointerQuietly(progressBar, processErrorUICOntainer)) {
+        if (asserter.assertPointerQuietly(progressBar, errorContainer)) {
             progressBar.setVisibility(View.VISIBLE);
-            processErrorUICOntainer.setVisibility(View.GONE);
+            errorContainer.setVisibility(View.GONE);
         }
         if (parentContentView != null)
             parentContentView.setVisibility(View.INVISIBLE);
@@ -138,9 +168,9 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
     public void resolveErrors() {
         l.d("Resolving errors");
         state = ProcessState.RESOLVED;
-        if (asserter.assertPointer(progressBar, processErrorUICOntainer)) {
+        if (asserter.assertPointer(progressBar, errorContainer)) {
             progressBar.setVisibility(View.GONE);
-            processErrorUICOntainer.setVisibility(View.GONE);
+            errorContainer.setVisibility(View.GONE);
         }
         if (parentContentView != null)
             parentContentView.setVisibility(View.VISIBLE);
