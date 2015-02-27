@@ -3,8 +3,8 @@ package com.aspirephile.shared.ui;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import com.aspirephile.taskcompanion.timming.Timer;
-import com.aspirephile.taskcompanion.timming.frametimer.FrameTimerListener;
+import com.aspirephile.shared.timming.Timer;
+import com.aspirephile.shared.timming.frametimer.FrameTimerListener;
 
 public class TimerView implements FrameTimerListener {
 
