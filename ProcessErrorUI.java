@@ -18,6 +18,7 @@ import com.aspirephile.shared.debug.NullPointerAsserter;
 
 import static android.view.View.OnClickListener;
 
+@SuppressWarnings("UnusedDeclaration")
 public class ProcessErrorUI extends Fragment implements OnClickListener {
     private final Logger l = new Logger(ProcessErrorUI.class);
     private final NullPointerAsserter asserter = new NullPointerAsserter(l);
@@ -150,8 +151,7 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
             progressBar.setVisibility(View.GONE);
             errorContainer.setVisibility(View.VISIBLE);
         }
-        if (parentContentView != null)
-            parentContentView.setVisibility(View.INVISIBLE);
+        makeParentContentViewInvisible();
     }
 
     public void showLoading() {
@@ -161,8 +161,7 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
             progressBar.setVisibility(View.VISIBLE);
             errorContainer.setVisibility(View.GONE);
         }
-        if (parentContentView != null)
-            parentContentView.setVisibility(View.INVISIBLE);
+        makeParentContentViewInvisible();
     }
 
     public void resolveErrors() {
@@ -172,8 +171,22 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
             progressBar.setVisibility(View.GONE);
             errorContainer.setVisibility(View.GONE);
         }
-        if (parentContentView != null)
+        makeParentContentViewVisible();
+    }
+
+    private void makeParentContentViewVisible() {
+        if (asserter.assertPointerQuietly(parentContentView))
             parentContentView.setVisibility(View.VISIBLE);
+    }
+
+    private void makeParentContentViewInvisible() {
+        if (asserter.assertPointerQuietly(parentContentView))
+            parentContentView.setVisibility(View.INVISIBLE);
+    }
+
+    private void makeParentContentViewGone() {
+        if (asserter.assertPointerQuietly(parentContentView))
+            parentContentView.setVisibility(View.INVISIBLE);
     }
 
     private void show() {
@@ -191,8 +204,7 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
             if (isAnimationEnabled) {
                 manager.setCustomAnimations(android.R.anim.fade_in, android.R.anim.slide_out_right);
             }
-            if (parentContentView != null)
-                parentContentView.setVisibility(View.GONE);
+            makeParentContentViewGone();
             if (asserter.assertPointerQuietly(manager))
                 manager.show(this).commit();
         }
@@ -213,8 +225,7 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
             if (animate) {
                 manager.setCustomAnimations(android.R.anim.fade_in, android.R.anim.slide_out_right);
             }
-            if (parentContentView != null)
-                parentContentView.setVisibility(View.VISIBLE);
+            makeParentContentViewVisible();
             if (asserter.assertPointerQuietly(manager))
                 manager.hide(this).commit();
         }
