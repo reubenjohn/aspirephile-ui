@@ -32,7 +32,8 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
 
     private String retryText;
     private Button retry;
-    private OnClickListener onClickListener;
+
+    private OnProcessErrorRetry onProcessErrorRetry;
     private ProgressBar progressBar;
 
     private enum ProcessState {
@@ -73,6 +74,7 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
                 {
                     retry = new Button(getActivity());
                     retry.setText(retryText);
+                    //retry.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 }
                 {
                     errorContainer = new LinearLayout(getActivity());
@@ -231,13 +233,13 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
         }
     }
 
-    public void setOnClickListener(OnClickListener onClickListener) {
-        this.onClickListener = onClickListener;
+    public void setOnProcessErrorRetry(OnProcessErrorRetry onProcessErrorRetry) {
+        this.onProcessErrorRetry = onProcessErrorRetry;
     }
 
     @Override
     public void onClick(View v) {
-        if (asserter.assertPointer(onClickListener))
-            onClickListener.onClick(v);
+        if (asserter.assertPointer(onProcessErrorRetry))
+            onProcessErrorRetry.onRetry(v);
     }
 }
