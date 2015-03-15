@@ -1,4 +1,4 @@
-package com.aspirephile.shared.ui;
+package com.aspirephile.shared.ui.swipe;
 // THIS IS A BETA! I DON'T RECOMMEND USING IT IN PRODUCTION CODE JUST YET
 
 /*

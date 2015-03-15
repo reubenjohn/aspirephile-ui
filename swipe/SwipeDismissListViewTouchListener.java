@@ -1,4 +1,4 @@
-package com.aspirephile.shared.ui;
+package com.aspirephile.shared.ui.swipe;
 
 import android.graphics.Rect;
 import android.view.MotionEvent;
@@ -62,25 +62,25 @@ import static com.nineoldandroids.view.ViewPropertyAnimator.animate;
  */
 public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
     // Cached ViewConfiguration and system-wide constant values
-    private int mSlop;
-    private int mMinFlingVelocity;
-    private int mMaxFlingVelocity;
-    private long mAnimationTime;
+    protected int mSlop;
+    protected int mMinFlingVelocity;
+    protected int mMaxFlingVelocity;
+    protected long mAnimationTime;
 
     // Fixed properties
-    private ListView mListView;
-    private OnDismissCallback mCallback;
-    private int mViewWidth = 1; // 1 and not 0 to prevent dividing by zero
+    protected ListView mListView;
+    protected OnDismissCallback mCallback;
+    protected int mViewWidth = 1; // 1 and not 0 to prevent dividing by zero
 
     // Transient properties
-    private List<PendingDismissData> mPendingDismisses = new ArrayList<PendingDismissData>();
-    private int mDismissAnimationRefCount = 0;
-    private float mDownX;
-    private boolean mSwiping;
-    private VelocityTracker mVelocityTracker;
-    private int mDownPosition;
-    private View mDownView;
-    private boolean mPaused;
+    protected List<PendingDismissData> mPendingDismisses = new ArrayList<PendingDismissData>();
+    protected int mDismissAnimationRefCount = 0;
+    protected float mDownX;
+    protected boolean mSwiping;
+    protected VelocityTracker mVelocityTracker;
+    protected int mDownPosition;
+    protected View mDownView;
+    protected boolean mPaused;
 
     /**
      * The callback interface used by {@link SwipeDismissListViewTouchListener} to inform its client
@@ -272,7 +272,7 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
         return false;
     }
 
-    class PendingDismissData implements Comparable<PendingDismissData> {
+    protected class PendingDismissData implements Comparable<PendingDismissData> {
         public int position;
         public View view;
 
