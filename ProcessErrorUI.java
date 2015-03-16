@@ -70,6 +70,7 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
                     error = new TextView(getActivity());
                     error.setText(errorText);
                     error.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);
+                    error.setGravity(Gravity.CENTER);
                 }
                 {
                     retry = new Button(getActivity());
@@ -109,19 +110,21 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
     public void onResume() {
         l.onResume();
         super.onResume();
-        switch (state) {
-            case ERROR_SET:
-                setError(errorText);
-                break;
-            case LOADING:
-                showLoading();
-                errorContainer.setVisibility(View.GONE);
-                break;
-            case RESOLVED:
-                resolveErrors();
-                break;
-            default:
-                l.e("Unknown Process UI state");
+        if (asserter.assertPointer(state)) {
+            switch (state) {
+                case ERROR_SET:
+                    setError(errorText);
+                    break;
+                case LOADING:
+                    showLoading();
+                    errorContainer.setVisibility(View.GONE);
+                    break;
+                case RESOLVED:
+                    resolveErrors();
+                    break;
+                default:
+                    l.e("Unknown Process UI state");
+            }
         }
     }
 
@@ -133,11 +136,11 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
         this.parentContentView = view;
     }
 
-    public void setError(String error) {
+    public void setError(String errorText) {
         if (asserter.assertPointerQuietly(this.error)) {
-            this.error.setText(error);
+            this.error.setText(errorText);
         } else {
-            errorText = error;
+            this.errorText = errorText;
         }
         internalSetError();
     }
@@ -235,6 +238,18 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
 
     public void setOnProcessErrorRetry(OnProcessErrorRetry onProcessErrorRetry) {
         this.onProcessErrorRetry = onProcessErrorRetry;
+    }
+
+    @Override
+    public void onDestroy() {
+        l.onDestroy();
+        super.onDestroy();
+    }
+
+    @Override
+    public void onDestroyView() {
+        l.onDestroyView();
+        super.onDestroyView();
     }
 
     @Override
