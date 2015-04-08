@@ -65,7 +65,13 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
     private View getDynamicallyCreatedContentView() {
         l.d("Dynamically generating Process error UI");
         {
+            mainContainer = new LinearLayout(getActivity());
+            mainContainer.setOrientation(LinearLayout.VERTICAL);
+            mainContainer.setGravity(Gravity.CENTER);
             {
+                errorContainer = new LinearLayout(getActivity());
+                errorContainer.setOrientation(LinearLayout.VERTICAL);
+                errorContainer.setGravity(Gravity.CENTER);
                 {
                     error = new TextView(getActivity());
                     error.setText(errorText);
@@ -75,26 +81,18 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
                 {
                     retry = new Button(getActivity());
                     retry.setText(retryText);
-                    //retry.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                    retry.setBackgroundResource(android.R.drawable.btn_default);
+                    retry.setTextColor(retry.getTextColors().getDefaultColor());
+                    //retry.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 }
-                {
-                    errorContainer = new LinearLayout(getActivity());
-                    errorContainer.setOrientation(LinearLayout.VERTICAL);
-                    errorContainer.setGravity(Gravity.CENTER);
-                    errorContainer.addView(error);
-                    errorContainer.addView(retry);
-                }
+                errorContainer.addView(error);
+                errorContainer.addView(retry);
             }
             {
                 progressBar = new ProgressBar(getActivity());
             }
-            {
-                mainContainer = new LinearLayout(getActivity());
-                mainContainer.setOrientation(LinearLayout.VERTICAL);
-                errorContainer.setGravity(Gravity.CENTER);
-                mainContainer.addView(errorContainer);
-                mainContainer.addView(progressBar);
-            }
+            mainContainer.addView(errorContainer);
+            mainContainer.addView(progressBar);
         }
         l.bridgeXML(asserter.assertPointer(error, retry, progressBar, errorContainer));
         return mainContainer;
@@ -137,16 +135,17 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
     }
 
     public void setError(String errorText) {
-        if (asserter.assertPointerQuietly(this.error)) {
-            this.error.setText(errorText);
-        } else {
-            this.errorText = errorText;
+        this.errorText = errorText;
+        if (asserter.assertPointerQuietly(error)) {
+            error.setText(errorText);
         }
         internalSetError();
     }
 
     public void setRetryText(String retryText) {
         this.retryText = retryText;
+        if (asserter.assertPointerQuietly(retry))
+            retry.setText(retryText);
     }
 
     private void internalSetError() {
