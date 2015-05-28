@@ -171,7 +171,7 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
     public void resolveErrors() {
         l.d("Resolving errors");
         state = ProcessState.RESOLVED;
-        if (asserter.assertPointer(progressBar, errorContainer)) {
+        if (asserter.assertPointerQuietly(progressBar, errorContainer)) {
             progressBar.setVisibility(View.GONE);
             errorContainer.setVisibility(View.GONE);
         }
