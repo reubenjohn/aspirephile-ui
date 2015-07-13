@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SharedUI</string>
+    <string name="process_error_ui_retry">Retry</string>
 </resources>

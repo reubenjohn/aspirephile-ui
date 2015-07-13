@@ -1,10 +1,10 @@
 package com.aspirephile.shared.ui;
 
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,51 +57,23 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         l.onCreateView();
-        View v = getDynamicallyCreatedContentView();
+        View v = inflater.inflate(R.layout.fragment_process_error_ui, container,
+                false);
+        bridgeXML(v);
         initializeFields();
         return v;
     }
 
-    private View getDynamicallyCreatedContentView() {
-        l.d("Dynamically generating Process error UI");
-        {
-            mainContainer = new LinearLayout(getActivity());
-            mainContainer.setOrientation(LinearLayout.VERTICAL);
-            mainContainer.setGravity(Gravity.CENTER);
-            {
-                errorContainer = new LinearLayout(getActivity());
-                errorContainer.setOrientation(LinearLayout.VERTICAL);
-                errorContainer.setGravity(Gravity.CENTER);
-                {
-                    error = new TextView(getActivity());
-                    error.setText(errorText);
-                    error.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);
-                    error.setGravity(Gravity.CENTER);
-                }
-                {
-                    retry = new Button(getActivity());
-                    retry.setText(retryText);
-                    retry.setBackgroundResource(android.R.drawable.btn_default);
-                    retry.setTextColor(retry.getTextColors().getDefaultColor());
-                    //retry.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                }
-                errorContainer.addView(error);
-                errorContainer.addView(retry);
-            }
-            {
-                progressBar = new ProgressBar(getActivity());
-            }
-            mainContainer.addView(errorContainer);
-            mainContainer.addView(progressBar);
-        }
-        l.bridgeXML(asserter.assertPointer(error, retry, progressBar, errorContainer));
-        return mainContainer;
+    @Override
+    public void onAttach(Activity activity) {
+        l.onAttach();
+        super.onAttach(activity);
     }
 
-    private void initializeFields() {
-        l.initializeFields();
-        isAnimationEnabled = true;
-        retry.setOnClickListener(this);
+    @Override
+    public void onStart() {
+        l.onStart();
+        super.onStart();
     }
 
     @Override
@@ -124,6 +96,52 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
                     l.e("Unknown Process UI state");
             }
         }
+    }
+
+    @Override
+    public void onPause() {
+        l.onPause();
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        l.onStop();
+        super.onStop();
+    }
+
+    @Override
+    public void onDetach() {
+        l.onDetach();
+        super.onDetach();
+    }
+
+    @Override
+    public void onDestroyView() {
+        l.onDestroyView();
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        l.onDestroy();
+        super.onDestroy();
+    }
+
+    private void bridgeXML(View v) {
+        l.bridgeXML();
+        mainContainer = (LinearLayout) v.findViewById(R.id.container_process_error_ui_main);
+        errorContainer = (LinearLayout) v.findViewById(R.id.container_process_error_ui_error);
+        error = (TextView) v.findViewById(R.id.tv_process_error_ui_error);
+        retry = (Button) v.findViewById(R.id.b_process_error_ui_retry);
+        progressBar = (ProgressBar) v.findViewById(R.id.pb_process_error_ui);
+        l.bridgeXML(asserter.assertPointer(mainContainer, error, retry, progressBar, errorContainer));
+    }
+
+    private void initializeFields() {
+        l.initializeFields();
+        isAnimationEnabled = true;
+        retry.setOnClickListener(this);
     }
 
     public void setAnimationsEnabled(boolean isAnimationEnabled) {
@@ -237,18 +255,6 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
 
     public void setOnProcessErrorRetry(OnProcessErrorRetry onProcessErrorRetry) {
         this.onProcessErrorRetry = onProcessErrorRetry;
-    }
-
-    @Override
-    public void onDestroy() {
-        l.onDestroy();
-        super.onDestroy();
-    }
-
-    @Override
-    public void onDestroyView() {
-        l.onDestroyView();
-        super.onDestroyView();
     }
 
     @Override
