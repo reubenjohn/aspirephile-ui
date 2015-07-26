@@ -16,11 +16,14 @@ import android.widget.TextView;
 import com.aspirephile.shared.debug.Logger;
 import com.aspirephile.shared.debug.NullPointerAsserter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static android.view.View.OnClickListener;
 
 @SuppressWarnings("UnusedDeclaration")
-public class ProcessErrorUI extends Fragment implements OnClickListener {
-    private final Logger l = new Logger(ProcessErrorUI.class);
+public class ProcessErrorFragment extends Fragment implements OnClickListener {
+    private final Logger l = new Logger(ProcessErrorFragment.class);
     private final NullPointerAsserter asserter = new NullPointerAsserter(l);
 
 
@@ -28,13 +31,14 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
     private View parentContentView;
 
     private TextView error;
-    private String errorText;
-
-    private String retryText;
     private Button retry;
 
-    private OnProcessErrorRetry onProcessErrorRetry;
     private ProgressBar progressBar;
+    private List<ProcessErrorManager> processErrorManagers = new ArrayList<>();
+    private List<Integer> requestCodes = new ArrayList<>();
+
+    private String errorText;
+    private String retryText;
 
     private enum ProcessState {
         LOADING, ERROR_SET, RESOLVED
@@ -43,13 +47,14 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
     ProcessState state;
     boolean isAnimationEnabled;
 
-    public ProcessErrorUI() {
+    public ProcessErrorFragment() {
         l.onConstructor();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         l.onCreate();
+        setRetainInstance(true);
         super.onCreate(savedInstanceState);
     }
 
@@ -61,7 +66,35 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
                 false);
         bridgeXML(v);
         initializeFields();
+        restoreUIState();
         return v;
+    }
+
+    private void restoreUIState() {
+        l.d("Restoring UI state");
+        if (asserter.assertPointerQuietly(retryText))
+            setRetryText(retryText);
+        try {
+            if (asserter.assertPointer(state)) {
+                int latestRequestCode = getLatestRequestCode();
+                switch (state) {
+                    case ERROR_SET:
+                        setError(errorText, latestRequestCode);
+                        break;
+                    case LOADING:
+                        showLoading(latestRequestCode);
+                        errorContainer.setVisibility(View.GONE);
+                        break;
+                    case RESOLVED:
+                        setError(null, latestRequestCode);
+                        break;
+                    default:
+                        l.e("Unknown Process UI state");
+                }
+            }
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -80,22 +113,6 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
     public void onResume() {
         l.onResume();
         super.onResume();
-        if (asserter.assertPointer(state)) {
-            switch (state) {
-                case ERROR_SET:
-                    setError(errorText);
-                    break;
-                case LOADING:
-                    showLoading();
-                    errorContainer.setVisibility(View.GONE);
-                    break;
-                case RESOLVED:
-                    resolveErrors();
-                    break;
-                default:
-                    l.e("Unknown Process UI state");
-            }
-        }
     }
 
     @Override
@@ -152,18 +169,24 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
         this.parentContentView = view;
     }
 
-    public void setError(String errorText) {
-        this.errorText = errorText;
-        if (asserter.assertPointerQuietly(error)) {
-            error.setText(errorText);
-        }
-        internalSetError();
-    }
-
-    public void setRetryText(String retryText) {
+    private void setRetryText(String retryText) {
         this.retryText = retryText;
         if (asserter.assertPointerQuietly(retry))
             retry.setText(retryText);
+    }
+
+    public void setError(String errorText, int requestCode) {
+        if (asserter.assertPointerQuietly(errorText)) {
+            requestCodes.remove((Integer) requestCode);
+            requestCodes.add(requestCode);
+            this.errorText = errorText;
+            if (asserter.assertPointerQuietly(error)) {
+                error.setText(errorText);
+            }
+            internalSetError();
+        } else {
+            resolveErrors(requestCode);
+        }
     }
 
     private void internalSetError() {
@@ -176,8 +199,10 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
         makeParentContentViewInvisible();
     }
 
-    public void showLoading() {
+    public void showLoading(int requestCode) {
         l.d("Showing loading");
+        requestCodes.remove((Integer) requestCode);
+        requestCodes.add(requestCode);
         state = ProcessState.LOADING;
         if (asserter.assertPointerQuietly(progressBar, errorContainer)) {
             progressBar.setVisibility(View.VISIBLE);
@@ -186,8 +211,9 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
         makeParentContentViewInvisible();
     }
 
-    public void resolveErrors() {
+    private void resolveErrors(int requestCode) {
         l.d("Resolving errors");
+        requestCodes.remove((Integer) requestCode);
         state = ProcessState.RESOLVED;
         if (asserter.assertPointerQuietly(progressBar, errorContainer)) {
             progressBar.setVisibility(View.GONE);
@@ -253,13 +279,32 @@ public class ProcessErrorUI extends Fragment implements OnClickListener {
         }
     }
 
-    public void setOnProcessErrorRetry(OnProcessErrorRetry onProcessErrorRetry) {
-        this.onProcessErrorRetry = onProcessErrorRetry;
+    public void attachOnProcessErrorManager(ProcessErrorManager errorManager) {
+        processErrorManagers.add(errorManager);
+        errorManager.onAttach(ProcessErrorFragment.this);
+    }
+
+    public void detachProcessErrorManager(ProcessErrorManager errorManager) {
+        processErrorManagers.remove(errorManager);
+        errorManager.onDetach();
     }
 
     @Override
     public void onClick(View v) {
-        if (asserter.assertPointer(onProcessErrorRetry))
-            onProcessErrorRetry.onRetry(v);
+        try {
+            int latestRequestCode = getLatestRequestCode();
+            for (ProcessErrorManager manager : processErrorManagers) {
+                if (latestRequestCode == manager.requestCode) {
+                    manager.onRetry();
+                }
+            }
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
     }
+
+    public int getLatestRequestCode() throws IndexOutOfBoundsException {
+        return requestCodes.get(requestCodes.size() - 1);
+    }
+
 }
