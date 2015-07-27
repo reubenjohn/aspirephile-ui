@@ -41,7 +41,7 @@ public class ProcessErrorFragment extends Fragment implements OnClickListener {
     private String retryText;
 
     private enum ProcessState {
-        LOADING, ERROR_SET, RESOLVED
+        LOADING, ERROR_SET, NONE
     }
 
     ProcessState state;
@@ -75,18 +75,16 @@ public class ProcessErrorFragment extends Fragment implements OnClickListener {
         if (asserter.assertPointerQuietly(retryText))
             setRetryText(retryText);
         try {
-            if (asserter.assertPointer(state)) {
-                int latestRequestCode = getLatestRequestCode();
+            if (asserter.assertPointerQuietly(state)) {
                 switch (state) {
                     case ERROR_SET:
-                        setError(errorText, latestRequestCode);
+                        setError(errorText, getLatestRequestCode());
                         break;
                     case LOADING:
-                        showLoading(latestRequestCode);
+                        showLoading(getLatestRequestCode());
                         errorContainer.setVisibility(View.GONE);
                         break;
-                    case RESOLVED:
-                        setError(null, latestRequestCode);
+                    case NONE:
                         break;
                     default:
                         l.e("Unknown Process UI state");
@@ -177,26 +175,35 @@ public class ProcessErrorFragment extends Fragment implements OnClickListener {
 
     public void setError(String errorText, int requestCode) {
         if (asserter.assertPointerQuietly(errorText)) {
+            l.d("Setting errors");
+
             requestCodes.remove((Integer) requestCode);
             requestCodes.add(requestCode);
+
             this.errorText = errorText;
             if (asserter.assertPointerQuietly(error)) {
                 error.setText(errorText);
             }
-            internalSetError();
+            state = ProcessState.ERROR_SET;
+            if (asserter.assertPointerQuietly(progressBar, errorContainer)) {
+                progressBar.setVisibility(View.GONE);
+                errorContainer.setVisibility(View.VISIBLE);
+            }
+            makeParentContentViewInvisible();
         } else {
-            resolveErrors(requestCode);
-        }
-    }
+            l.d("Resolving errors");
 
-    private void internalSetError() {
-        l.d("Setting errors");
-        state = ProcessState.ERROR_SET;
-        if (asserter.assertPointerQuietly(progressBar, errorContainer)) {
-            progressBar.setVisibility(View.GONE);
-            errorContainer.setVisibility(View.VISIBLE);
+            requestCodes.remove((Integer) requestCode);
+
+            this.errorText = errorText;
+
+            state = ProcessState.NONE;
+            if (asserter.assertPointerQuietly(progressBar, errorContainer)) {
+                progressBar.setVisibility(View.GONE);
+                errorContainer.setVisibility(View.GONE);
+            }
+            makeParentContentViewVisible();
         }
-        makeParentContentViewInvisible();
     }
 
     public void showLoading(int requestCode) {
@@ -209,17 +216,6 @@ public class ProcessErrorFragment extends Fragment implements OnClickListener {
             errorContainer.setVisibility(View.GONE);
         }
         makeParentContentViewInvisible();
-    }
-
-    private void resolveErrors(int requestCode) {
-        l.d("Resolving errors");
-        requestCodes.remove((Integer) requestCode);
-        state = ProcessState.RESOLVED;
-        if (asserter.assertPointerQuietly(progressBar, errorContainer)) {
-            progressBar.setVisibility(View.GONE);
-            errorContainer.setVisibility(View.GONE);
-        }
-        makeParentContentViewVisible();
     }
 
     private void makeParentContentViewVisible() {
