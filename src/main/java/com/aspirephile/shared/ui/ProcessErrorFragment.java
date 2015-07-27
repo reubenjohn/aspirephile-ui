@@ -85,13 +85,15 @@ public class ProcessErrorFragment extends Fragment implements OnClickListener {
                         errorContainer.setVisibility(View.GONE);
                         break;
                     case NONE:
+                        setError(null, getLatestRequestCode());
                         break;
                     default:
                         l.e("Unknown Process UI state");
                 }
             }
         } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
+            l.w("No recent request codes to select from");
+            setError(null, 0);
         }
     }
 
@@ -174,11 +176,10 @@ public class ProcessErrorFragment extends Fragment implements OnClickListener {
     }
 
     public void setError(String errorText, int requestCode) {
+        if (requestCode != 0)
+            handleErrorSetRequestCode(errorText, requestCode);
         if (asserter.assertPointerQuietly(errorText)) {
             l.d("Setting errors");
-
-            requestCodes.remove((Integer) requestCode);
-            requestCodes.add(requestCode);
 
             this.errorText = errorText;
             if (asserter.assertPointerQuietly(error)) {
@@ -193,8 +194,6 @@ public class ProcessErrorFragment extends Fragment implements OnClickListener {
         } else {
             l.d("Resolving errors");
 
-            requestCodes.remove((Integer) requestCode);
-
             this.errorText = errorText;
 
             state = ProcessState.NONE;
@@ -203,6 +202,15 @@ public class ProcessErrorFragment extends Fragment implements OnClickListener {
                 errorContainer.setVisibility(View.GONE);
             }
             makeParentContentViewVisible();
+        }
+    }
+
+    private void handleErrorSetRequestCode(String errorText, int requestCode) {
+        if (asserter.assertPointerQuietly(errorText)) {
+            requestCodes.remove((Integer) requestCode);
+            requestCodes.add(requestCode);
+        } else {
+            requestCodes.remove((Integer) requestCode);
         }
     }
 
@@ -221,16 +229,15 @@ public class ProcessErrorFragment extends Fragment implements OnClickListener {
     private void makeParentContentViewVisible() {
         if (asserter.assertPointerQuietly(parentContentView))
             parentContentView.setVisibility(View.VISIBLE);
+        else
+            l.w("The parent content view has not been set. Ignoring attempt to make it visible");
     }
 
     private void makeParentContentViewInvisible() {
         if (asserter.assertPointerQuietly(parentContentView))
             parentContentView.setVisibility(View.INVISIBLE);
-    }
-
-    private void makeParentContentViewGone() {
-        if (asserter.assertPointerQuietly(parentContentView))
-            parentContentView.setVisibility(View.INVISIBLE);
+        else
+            l.w("The parent content view has not been set. Ignoring attempt to make it invisible");
     }
 
     private void show() {
@@ -248,7 +255,7 @@ public class ProcessErrorFragment extends Fragment implements OnClickListener {
             if (isAnimationEnabled) {
                 manager.setCustomAnimations(android.R.anim.fade_in, android.R.anim.slide_out_right);
             }
-            makeParentContentViewGone();
+            makeParentContentViewInvisible();
             if (asserter.assertPointerQuietly(manager))
                 manager.show(this).commit();
         }

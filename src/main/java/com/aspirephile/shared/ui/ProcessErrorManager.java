@@ -51,18 +51,20 @@ public class ProcessErrorManager {
     }
 
     public void setError(String error) {
-        if (asserter.assertPointer(processErrorFragment)) {
+        if (asserter.assertPointerQuietly(processErrorFragment)) {
             processErrorFragment.setError(error, requestCode);
         } else {
+            l.w("Manager has not been attached. The command is being queued instead");
             queueCommand = QUEUE_ERROR;
             this.queuedErrorText = error;
         }
     }
 
     public void showLoading() {
-        if (asserter.assertPointer(processErrorFragment)) {
+        if (asserter.assertPointerQuietly(processErrorFragment)) {
             processErrorFragment.showLoading(requestCode);
         } else {
+            l.w("Manager has not been attached. The command is being queued instead");
             queueCommand = QUEUE_LOADING;
         }
     }
