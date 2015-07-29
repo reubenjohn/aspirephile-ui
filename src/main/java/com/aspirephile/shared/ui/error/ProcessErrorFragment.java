@@ -83,7 +83,6 @@ public class ProcessErrorFragment extends Fragment implements OnClickListener {
                         break;
                     case LOADING:
                         showLoading(getLatestRequestCode());
-                        errorContainer.setVisibility(View.GONE);
                         break;
                     case NONE:
                         setError(null, getLatestRequestCode());
@@ -91,6 +90,8 @@ public class ProcessErrorFragment extends Fragment implements OnClickListener {
                     default:
                         l.e("Unknown Process UI state");
                 }
+            } else {
+                setError(null, getLatestRequestCode());
             }
         } catch (IndexOutOfBoundsException e) {
             l.w("No recent request codes to select from");

@@ -23,7 +23,7 @@ public class ProcessErrorActivity extends AppCompatActivity {
     protected void openProcessErrorFragment() {
         l.d("Opening process error fragment");
         asserter.assertPointer(processErrorTag);
-        if (BuildConfig.DEBUG && processErrorContainerId == 0)
+        if (processErrorContainerId == 0)
             l.e("Attempting to open process error fragment without setting process error container ID!");
         FragmentManager fm = getSupportFragmentManager();
         processErrorF = (ProcessErrorFragment) fm.findFragmentByTag(processErrorTag);
