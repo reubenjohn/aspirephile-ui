@@ -1,4 +1,4 @@
-package com.aspirephile.shared.ui;
+package com.aspirephile.shared.ui.error;
 
 
 import android.app.Activity;
@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.aspirephile.shared.debug.Logger;
 import com.aspirephile.shared.debug.NullPointerAsserter;
+import com.aspirephile.shared.ui.R;
 
 import java.util.ArrayList;
 import java.util.List;

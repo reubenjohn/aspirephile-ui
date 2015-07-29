@@ -1,13 +1,12 @@
-package com.aspirephile.shared.ui;
+package com.aspirephile.shared.ui.error;
 
 import android.content.Context;
 
 import com.aspirephile.shared.debug.Logger;
 import com.aspirephile.shared.debug.NullPointerAsserter;
+import com.aspirephile.shared.ui.R;
 
 public class ProcessErrorManager {
-    public static final String parentActivityAttachMethodName = "attachProcessErrorManager";
-    public static final String parentActivityDetachMethodName = "detachProcessErrorManager";
     private Logger l = new Logger(ProcessErrorManager.class);
     private NullPointerAsserter asserter = new NullPointerAsserter(l);
     String retryText;

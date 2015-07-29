@@ -1,4 +1,4 @@
-package com.aspirephile.shared.ui;
+package com.aspirephile.shared.ui.error;
 
 public interface OnProcessErrorRetry {
     void onRetry();
