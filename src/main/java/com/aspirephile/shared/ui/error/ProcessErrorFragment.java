@@ -50,6 +50,7 @@ public class ProcessErrorFragment extends Fragment implements OnClickListener {
 
     public ProcessErrorFragment() {
         l.onConstructor();
+        isAnimationEnabled = true;
     }
 
     @Override
