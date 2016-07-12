@@ -50,9 +50,10 @@ public class ProcessErrorManager {
     }
 
     public void setError(String error) {
-        if (asserter.assertPointerQuietly(processErrorFragment)) {
-            processErrorFragment.setError(error, requestCode);
-        } else {
+        try {
+            if (asserter.assertPointer(processErrorFragment))
+                processErrorFragment.setError(error, requestCode);
+        } catch (IllegalStateException e) {
             l.w("Manager has not been attached. The command is being queued instead");
             queueCommand = QUEUE_ERROR;
             this.queuedErrorText = error;
