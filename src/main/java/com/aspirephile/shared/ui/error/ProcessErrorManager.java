@@ -7,17 +7,17 @@ import com.aspirephile.shared.debug.NullPointerAsserter;
 import com.aspirephile.shared.ui.R;
 
 public class ProcessErrorManager {
-    private Logger l = new Logger(ProcessErrorManager.class);
-    private NullPointerAsserter asserter = new NullPointerAsserter(l);
-    String retryText;
-    OnProcessErrorRetry retryListener;
-    private ProcessErrorFragment processErrorFragment = null;
-    public final int requestCode;
-    private String queuedErrorText;
-    int queueCommand = QUEUE_EMPTY;
     static final int QUEUE_EMPTY = 0;
     static final int QUEUE_LOADING = 1;
     static final int QUEUE_ERROR = 2;
+    public final int requestCode;
+    String retryText;
+    OnProcessErrorRetry retryListener;
+    int queueCommand = QUEUE_EMPTY;
+    private Logger l = new Logger(ProcessErrorManager.class);
+    private NullPointerAsserter asserter = new NullPointerAsserter(l);
+    private ProcessErrorFragment processErrorFragment = null;
+    private String queuedErrorText;
 
     public ProcessErrorManager(Context context, int requestCode) {
         retryText = context.getResources().getString(R.string.process_error_ui_retry);
