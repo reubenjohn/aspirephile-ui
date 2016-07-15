@@ -1,10 +1,7 @@
 package com.aspirephile.shared.ui.error;
 
-import android.content.Context;
-
 import com.aspirephile.shared.debug.Logger;
 import com.aspirephile.shared.debug.NullPointerAsserter;
-import com.aspirephile.shared.ui.R;
 
 public class ProcessErrorManager {
     static final int QUEUE_EMPTY = 0;
@@ -19,8 +16,8 @@ public class ProcessErrorManager {
     private ProcessErrorFragment processErrorFragment = null;
     private String queuedErrorText;
 
-    public ProcessErrorManager(Context context, int requestCode) {
-        retryText = context.getResources().getString(R.string.process_error_ui_retry);
+    public ProcessErrorManager(int requestCode) {
+        retryText = "Retry";
         this.requestCode = requestCode;
     }
 
