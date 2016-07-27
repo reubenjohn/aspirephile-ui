@@ -1,5 +1,5 @@
 package com.aspirephile.shared.ui.error;
 
 public interface OnProcessErrorRetry {
-    void onRetry();
+    void onRetry(int retryRequestMode);
 }

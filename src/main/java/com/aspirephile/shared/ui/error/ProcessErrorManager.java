@@ -7,7 +7,9 @@ public class ProcessErrorManager {
     static final int QUEUE_EMPTY = 0;
     static final int QUEUE_LOADING = 1;
     static final int QUEUE_ERROR = 2;
+    private static final int INVALID_RETRY_REQUEST_CODE = -154912;
     public final int requestCode;
+    private int retryRequestCode;
     String retryText;
     OnProcessErrorRetry retryListener;
     int queueCommand = QUEUE_EMPTY;
@@ -25,7 +27,7 @@ public class ProcessErrorManager {
         l.onAttach();
         this.processErrorFragment = processErrorFragment;
         if (queueCommand == QUEUE_ERROR) {
-            setError(queuedErrorText);
+            setError(queuedErrorText, retryRequestCode);
         } else if (queueCommand == QUEUE_LOADING) {
             showLoading();
         }
@@ -38,7 +40,7 @@ public class ProcessErrorManager {
 
     public void onRetry() {
         if (asserter.assertPointer(retryListener)) {
-            retryListener.onRetry();
+            retryListener.onRetry(retryRequestCode);
         }
     }
 
@@ -46,7 +48,8 @@ public class ProcessErrorManager {
         this.retryText = retryText;
     }
 
-    public void setError(String error) {
+    public void setError(String error, int retryRequestCode) {
+        this.retryRequestCode = retryRequestCode;
         try {
             if (asserter.assertPointer(processErrorFragment))
                 processErrorFragment.setError(error, requestCode);
@@ -55,6 +58,10 @@ public class ProcessErrorManager {
             queueCommand = QUEUE_ERROR;
             this.queuedErrorText = error;
         }
+    }
+
+    public void setError(String error) {
+        setError(error,INVALID_RETRY_REQUEST_CODE);
     }
 
     public void showLoading() {
